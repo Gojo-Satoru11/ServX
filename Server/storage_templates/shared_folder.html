@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}{{ folder_name }} - Shared Folder{% endblock %}
+
+{% block content %}
+<div class="shared-folder-page">
+    <div class="folder-header">
+        <div class="folder-title">
+            <h1>📁 {{ folder_name }}</h1>
+            <div class="folder-badges">
+                {% if is_owner %}
+                    <span class="badge-owner">You own this folder</span>
+                {% else %}
+                    <span class="badge-shared">Shared by {{ owner }}</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="folder-info-box">
+            <p><strong>Shared with:</strong> {{ shared_with|join(', ') }}</p>
+            <p><strong>Files:</strong> {{ file_count }}</p>
+        </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+        <h2>📤 Upload to Shared Folder</h2>
+        <form action="{{ url_for('upload_to_shared', folder_id=folder_id) }}" 
+              method="POST" enctype="multipart/form-data" class="upload-form">
+            <div class="file-input-wrapper">
+                <input type="file" name="file" id="fileInput" required>
+                <label for="fileInput" class="file-input-label">
+                    <span class="upload-icon">📎</span>
+                    <span class="upload-text">Choose a file to share</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span>⬆️ Upload to Shared</span>
+            </button>
+        </form>
+        <p class="upload-info">
+            Everyone with access can see and download files uploaded here
+        </p>
+    </div>
+
+    <!-- Files List -->
+    <div class="files-section">
+        <div class="files-header">
+            <h2>📁 Shared Files ({{ file_count }})</h2>
+        </div>
+
+        {% if files %}
+        <div class="files-grid">
+            {% for file in files %}
+            <div class="file-card">
+                <div class="file-icon">
+                    {% if file.type in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+                        🖼️
+                    {% elif file.type in ['pdf'] %}
+                        📄
+                    {% elif file.type in ['doc', 'docx'] %}
+                        📝
+                    {% elif file.type in ['xls', 'xlsx'] %}
+                        📊
+                    {% elif file.type in ['ppt', 'pptx'] %}
+                        📽️
+                    {% elif file.type in ['zip', 'rar', 'tar', 'gz'] %}
+                        📦
+                    {% elif file.type in ['mp3', 'wav'] %}
+                        🎵
+                    {% elif file.type in ['mp4', 'avi', 'mov'] %}
+                        🎬
+                    {% elif file.type in ['py', 'js', 'html', 'css', 'json'] %}
+                        💻
+                    {% else %}
+                        📄
+                    {% endif %}
+                </div>
+                <div class="file-info">
+                    <h4 class="file-name" title="{{ file.name }}">{{ file.name }}</h4>
+                    <p class="file-meta">
+                        <span class="file-size">{{ file.size_formatted }}</span>
+                        <span class="file-date">{{ file.uploaded }}</span>
+                    </p>
+                </div>
+                <div class="file-actions">
+                    <a href="{{ url_for('download_shared_file', folder_id=folder_id, filename=file.name) }}" 
+                       class="btn-icon" title="Download">
+                        ⬇️
+                    </a>
+                    <form action="{{ url_for('delete_shared_file', folder_id=folder_id, filename=file.name) }}" 
+                          method="POST" style="display: inline;"
+                          onsubmit="return confirm('Delete {{ file.name }} from shared folder?');">
+                        <button type="submit" class="btn-icon btn-danger" title="Delete">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No files yet</h3>
+            <p>Upload the first file to this shared folder!</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('shared_folders') }}" class="btn btn-secondary">
+            ← Back to Shared Folders
+        </a>
+    </div>
+</div>
+
+<style>
+.shared-folder-page {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.folder-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.folder-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.folder-title h1 {
+    color: #1e3c72;
+    margin: 0;
+}
+
+.folder-badges {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.badge-owner {
+    background: #28a745;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-shared {
+    background: #7e22ce;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.folder-info-box {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+}
+
+.folder-info-box p {
+    margin: 0.5rem 0;
+    color: #666;
+}
+
+.upload-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    border: 2px dashed #ddd;
+}
+
+.upload-section h2 {
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+}
+
+.files-section {
+    margin-top: 2rem;
+}
+
+.files-header h2 {
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+}
+
+.actions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e0e0e0;
+}
+</style>
+
+<script>
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const label = document.querySelector('.upload-text');
+    if (this.files.length > 0) {
+        label.textContent = this.files[0].name;
+    } else {
+        label.textContent = 'Choose a file to share';
+    }
+});
+</script>
+{% endblock %}

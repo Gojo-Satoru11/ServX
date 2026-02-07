@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cloud Storage{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/storage_style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h2>☁️ Cloud Storage</h2>
+            </div>
+            <div class="nav-links">
+                {% if session.username %}
+                    <a href="{{ url_for('storage') }}">📁 My Files</a>
+                    <a href="{{ url_for('shared_folders') }}">🤝 Shared</a>
+                    <a href="{{ url_for('account') }}">👤 Account</a>
+                    <a href="{{ url_for('logout') }}">🚪 Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Cloud Storage | 10GB per user | Secure & Private</p>
+        </div>
+    </footer>
+</body>
+</html>

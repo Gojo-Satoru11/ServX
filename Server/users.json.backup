@@ -1,0 +1,14 @@
+{
+  "users": {
+    "Ali Saber": {
+      "email": "aly.saber.ntss@gmail.com",
+      "salt": "1b94d6ad5a7635bb94bb8cda75a4cad0",
+      "password": "e60e5fa02d7803cf7f9be85d8d31f8b2339b2ac5f1bb6c78cbe0bc4aeabf39ae",
+      "created_at": "2026-02-07T11:41:00.887950",
+      "last_active": "2026-02-07T11:58:24.298038",
+      "storage_used": 1780820100,
+      "storage_limit": 10737418240
+    }
+  },
+  "shared_folders": {}
+}

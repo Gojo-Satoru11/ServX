@@ -1,0 +1,24 @@
+[Unit]
+Description=Cloud Storage Application
+After=network.target
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/cloud-storage
+Environment="PATH=/var/www/cloud-storage/venv/bin"
+EnvironmentFile=/var/www/cloud-storage/.env
+ExecStart=/var/www/cloud-storage/venv/bin/gunicorn --config gunicorn_config.py app_production:app
+
+Restart=always
+RestartSec=10
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/www/cloud-storage
+
+[Install]
+WantedBy=multi-user.target

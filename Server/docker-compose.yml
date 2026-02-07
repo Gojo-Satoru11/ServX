@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  cloud-storage:
+    build: .
+    container_name: cloud_storage_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - STORAGE_LIMIT_GB=${STORAGE_LIMIT_GB:-10}
+      - MAX_USERS=${MAX_USERS:-10}
+    volumes:
+      - ./user_storage:/app/user_storage
+      - ./shared_storage:/app/shared_storage
+      - ./users.json:/app/users.json
+      - ./logs:/app/logs
+    networks:
+      - cloud-storage-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: cloud_storage_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./storage_static:/var/www/static
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - cloud-storage
+    networks:
+      - cloud-storage-network
+
+networks:
+  cloud-storage-network:
+    driver: bridge
+
+volumes:
+  user_storage:
+  shared_storage:
+  logs:

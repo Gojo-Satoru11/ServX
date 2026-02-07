@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}My Storage - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="storage-page">
+    <div class="storage-header">
+        <h1>My Storage</h1>
+        <p class="subtitle">Welcome back, <strong>{{ username }}</strong>!</p>
+    </div>
+
+    <!-- Storage Usage Bar -->
+    <div class="storage-usage-card">
+        <div class="usage-header">
+            <h3>📊 Storage Usage</h3>
+            <span class="usage-text">{{ storage_used }} / {{ storage_limit }}</span>
+        </div>
+        <div class="usage-bar">
+            <div class="usage-fill" style="width: {{ storage_percent }}%"></div>
+        </div>
+        <p class="usage-details">
+            {{ file_count }} files • 
+            {% if storage_percent < 80 %}
+                <span class="text-success">{{ "%.0f"|format(100 - storage_percent) }}% available</span>
+            {% elif storage_percent < 95 %}
+                <span class="text-warning">{{ "%.0f"|format(100 - storage_percent) }}% available</span>
+            {% else %}
+                <span class="text-danger">{{ "%.0f"|format(100 - storage_percent) }}% available</span>
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-section">
+        <h2>📤 Upload Files</h2>
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" class="upload-form">
+            <div class="file-input-wrapper">
+                <input type="file" name="file" id="fileInput" required>
+                <label for="fileInput" class="file-input-label">
+                    <span class="upload-icon">📎</span>
+                    <span class="upload-text">Choose a file or drag and drop</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <span>⬆️ Upload</span>
+            </button>
+        </form>
+        <p class="upload-info">
+            Max file size: 2GB • 
+            Allowed types: Images, Documents, Videos, Archives, and more
+        </p>
+    </div>
+
+    <!-- Files List -->
+    <div class="files-section">
+        <div class="files-header">
+            <h2>📁 My Files ({{ file_count }})</h2>
+        </div>
+
+        {% if files %}
+        <div class="files-grid">
+            {% for file in files %}
+            <div class="file-card">
+                <div class="file-icon">
+                    {% if file.type in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+                        🖼️
+                    {% elif file.type in ['pdf'] %}
+                        📄
+                    {% elif file.type in ['doc', 'docx'] %}
+                        📝
+                    {% elif file.type in ['xls', 'xlsx'] %}
+                        📊
+                    {% elif file.type in ['ppt', 'pptx'] %}
+                        📽️
+                    {% elif file.type in ['zip', 'rar', 'tar', 'gz'] %}
+                        📦
+                    {% elif file.type in ['mp3', 'wav'] %}
+                        🎵
+                    {% elif file.type in ['mp4', 'avi', 'mov'] %}
+                        🎬
+                    {% elif file.type in ['py', 'js', 'html', 'css', 'json'] %}
+                        💻
+                    {% else %}
+                        📄
+                    {% endif %}
+                </div>
+                <div class="file-info">
+                    <h4 class="file-name" title="{{ file.name }}">{{ file.name }}</h4>
+                    <p class="file-meta">
+                        <span class="file-size">{{ file.size_formatted }}</span>
+                        <span class="file-date">{{ file.uploaded }}</span>
+                    </p>
+                </div>
+                <div class="file-actions">
+                    <a href="{{ url_for('download_file', filename=file.name) }}" 
+                       class="btn-icon" title="Download">
+                        ⬇️
+                    </a>
+                    <form action="{{ url_for('delete_file', filename=file.name) }}" 
+                          method="POST" style="display: inline;"
+                          onsubmit="return confirm('Are you sure you want to delete {{ file.name }}?');">
+                        <button type="submit" class="btn-icon btn-danger" title="Delete">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No files yet</h3>
+            <p>Upload your first file to get started!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// File input preview
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    const label = document.querySelector('.upload-text');
+    if (this.files.length > 0) {
+        label.textContent = this.files[0].name;
+    } else {
+        label.textContent = 'Choose a file or drag and drop';
+    }
+});
+</script>
+{% endblock %}

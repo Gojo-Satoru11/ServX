@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="account-page">
+    <h1>My Account</h1>
+    
+    <div class="account-grid">
+        <div class="account-card">
+            <div class="card-icon">👤</div>
+            <div class="card-content">
+                <h3>Username</h3>
+                <p class="card-value">{{ username }}</p>
+            </div>
+        </div>
+        
+        <div class="account-card">
+            <div class="card-icon">📧</div>
+            <div class="card-content">
+                <h3>Email</h3>
+                <p class="card-value">{{ email }}</p>
+            </div>
+        </div>
+        
+        <div class="account-card">
+            <div class="card-icon">📅</div>
+            <div class="card-content">
+                <h3>Member Since</h3>
+                <p class="card-value">{{ created_at[:10] }}</p>
+            </div>
+        </div>
+        
+        <div class="account-card">
+            <div class="card-icon">📁</div>
+            <div class="card-content">
+                <h3>Total Files</h3>
+                <p class="card-value">{{ file_count }}</p>
+            </div>
+        </div>
+        
+        <div class="account-card">
+            <div class="card-icon">💾</div>
+            <div class="card-content">
+                <h3>Storage Used</h3>
+                <p class="card-value">{{ storage_used }}</p>
+            </div>
+        </div>
+        
+        <div class="account-card">
+            <div class="card-icon">📊</div>
+            <div class="card-content">
+                <h3>Storage Limit</h3>
+                <p class="card-value">{{ storage_limit }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="account-info">
+        <h2>📋 Account Information</h2>
+        <div class="info-box">
+            <h3>Storage Plan</h3>
+            <ul>
+                <li>✅ 10GB of secure cloud storage</li>
+                <li>✅ Upload files up to 2GB</li>
+                <li>✅ Download anytime, anywhere</li>
+                <li>✅ Secure encryption for all files</li>
+                <li>✅ Private storage - only you can access</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>Supported File Types</h3>
+            <p>Images (JPG, PNG, GIF), Documents (PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX), 
+               Archives (ZIP, RAR, TAR, GZ), Media (MP3, MP4, AVI, MOV), 
+               Code (PY, JS, HTML, CSS, JSON), and more!</p>
+        </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('storage') }}" class="btn btn-primary">Back to My Files</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block title %}Shared Folders - Cloud Storage{% endblock %}
+
+{% block content %}
+<div class="shared-page">
+    <div class="page-header">
+        <h1>🤝 Shared Folders</h1>
+        <p class="subtitle">Collaborate with other users</p>
+    </div>
+
+    <!-- Create New Shared Folder -->
+    <div class="create-folder-section">
+        <h2>➕ Create New Shared Folder</h2>
+        <form action="{{ url_for('create_folder') }}" method="POST" class="create-folder-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="folder_name">Folder Name</label>
+                    <input type="text" id="folder_name" name="folder_name" 
+                           placeholder="e.g., Team Project" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Share With</label>
+                    <div class="users-checklist">
+                        {% if all_users %}
+                            {% for user in all_users %}
+                            <label class="user-checkbox">
+                                <input type="checkbox" name="shared_with" value="{{ user }}">
+                                <span>{{ user }}</span>
+                            </label>
+                            {% endfor %}
+                        {% else %}
+                            <p class="no-users">No other users registered yet</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" {% if not all_users %}disabled{% endif %}>
+                Create Shared Folder
+            </button>
+        </form>
+    </div>
+
+    <!-- My Shared Folders -->
+    <div class="folders-section">
+        <h2>📂 My Shared Folders</h2>
+        
+        {% if folders %}
+        <div class="folders-grid">
+            {% for folder in folders %}
+            <div class="folder-card">
+                <div class="folder-icon">
+                    {% if folder.is_owner %}
+                        📁
+                    {% else %}
+                        🤝
+                    {% endif %}
+                </div>
+                <div class="folder-info">
+                    <h3>{{ folder.name }}</h3>
+                    <p class="folder-meta">
+                        {% if folder.is_owner %}
+                            <span class="owner-badge">Owner</span>
+                        {% else %}
+                            <span class="shared-badge">Shared by {{ folder.owner }}</span>
+                        {% endif %}
+                    </p>
+                    <p class="folder-stats">
+                        {{ folder.file_count }} files • 
+                        Shared with {{ folder.shared_with|length }} user(s)
+                    </p>
+                </div>
+                <div class="folder-actions">
+                    <a href="{{ url_for('view_shared_folder', folder_id=folder.id) }}" 
+                       class="btn btn-small btn-primary">
+                        Open
+                    </a>
+                    {% if folder.is_owner %}
+                    <form action="{{ url_for('delete_shared_folder', folder_id=folder.id) }}" 
+                          method="POST" style="display: inline;"
+                          onsubmit="return confirm('Delete this folder and all its files?');">
+                        <button type="submit" class="btn btn-small btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No shared folders yet</h3>
+            <p>Create a shared folder to collaborate with other users!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.shared-page {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+}
+
+.create-folder-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 3rem;
+}
+
+.create-folder-section h2 {
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+}
+
+.create-folder-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.users-checklist {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+}
+
+.user-checkbox {
+    display: block;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.user-checkbox:hover {
+    background: #f0f0f0;
+}
+
+.user-checkbox input {
+    margin-right: 0.5rem;
+}
+
+.no-users {
+    color: #666;
+    font-style: italic;
+}
+
+.folders-section h2 {
+    color: #1e3c72;
+    margin-bottom: 1.5rem;
+}
+
+.folders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.folder-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+    border-radius: 12px;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    transition: transform 0.3s;
+}
+
+.folder-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.folder-icon {
+    font-size: 3rem;
+    flex-shrink: 0;
+}
+
+.folder-info {
+    flex: 1;
+}
+
+.folder-info h3 {
+    color: #1e3c72;
+    margin-bottom: 0.5rem;
+}
+
+.folder-meta {
+    margin-bottom: 0.5rem;
+}
+
+.owner-badge {
+    background: #28a745;
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.shared-badge {
+    background: #7e22ce;
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.folder-stats {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.folder-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .create-folder-form .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .folders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
